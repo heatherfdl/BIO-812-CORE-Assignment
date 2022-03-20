@@ -2,7 +2,7 @@
 **Heather Lounder**
 GitHub username: heatherfdl
 
-# Pipeline
-image:[](BIOL 812 Pipeline.png)
+# General Schematic
+![](BIO-812-CORE-Assignment/BIOL 812 Pipeline.png)
 ***
 
