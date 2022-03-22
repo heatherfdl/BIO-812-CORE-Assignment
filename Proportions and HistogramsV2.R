@@ -5,52 +5,60 @@
 #4. output figure to pdf file
 
 # read csv. file using created sample data
+install.packages("tidyr")
+library(tidyr)
 getwd()
-mydata<-read.csv("sampledata.csv", header=TRUE)
+mydata<-read.csv("Psuedodata.csv", header=TRUE, sep=",")
 mydata
+
 names(mydata)
-class("X")
+class("Bases..A..G..C..T")
 str(mydata)
-genres<-mydata$X
-print(genres)
-attach(mydata)
-genres<-as.factor(genres)
-class(genres)
-print(mydata)
+#sepearte column values
+sepmydata<-separate(mydata,'Bases..A..G..C..T.', c("A","G","C","T"))
+sepmydata
+names(sepmydata)
+#Create variable for each base column
+baseA<-sepmydata$A
+intA<-as.integer(baseA)
+baseG<-sepmydata$G
+intG<-as.integer(baseG)
+baseC<-sepmydata$C
+intC<-as.integer(baseC)
+baseT<-sepmydata$T
+intT<-as.integer(baseT)
+bases=c(baseA, baseG, baseC, baseT)
+attach(sepmydata) #attach data 
+df<-data.frame(sepmydata)
+#Calculate proportions
+#find sum of each column
+totalA<-sum(intA)
+totalG<-sum(intG)
+totalC<-sum(intC)
+totalT<-sum(intT)
+#calculate proportions
+propA<-intA/totalA
+propG<-intG/totalG
+propC<-intC/totalC
+propT<-intT/totalT
 
-#Convert to proportions
-points1<-(books[genres=="data1"])
-points2<-(books[genres=="data2"])
-points3<-(books[genres=="data3"])
-points4<-(books[genres=="data4"])
+df #current data
+library(dplyr)
+library(grid)
+baseprop<-df %>% mutate(A=propA, G=propG, C=propC, T=propT)
+baseprop
 
-total1<-sum(books[genres=="data1"])
-total2<-sum(books[genres =="data2"])
-total3<-sum(books[genres =="data3"])
-total4<-sum(books[genres=="data4"])
-
-data1<-points1/total1
-data2<-points2/total2
-data3<-points3/total3
-data4<-points4/total4
-#create list of results aa new column in dataframe
-propdata<-c(data1, data2, data3, data4)
-print(propdata)
-mydataframe<-data.frame(mydata)
-mydataframe$proportions<-propdata
-mydataframe
-names(mydataframe)
-
-rbind(data1, data2, data3, data4)
-print(propdata)
-str(propdata)
-
-#Open pdf file to save figure in
-pdf("SampleDataPlot.pdf", width=10, height=10)
-
-#Plot histograms on 2x2 panel and save to pdf file
+#histograms of proportion data
 library(ggplot2)
-ggplot(data=mydataframe, aes(x=proportions, fill=X))+ 
-  geom_histogram(colour="black", bins=20) +
-  facet_wrap(~X) + ggtitle("Histograms of Sample Data")
+histA<-ggplot(data=baseprop, aes(x=A)) + geom_histogram(colour="grey", fill="#0072b2") + ylab("Count") + xlab("Nucleotide A")
+histG<-ggplot(data=df, aes(x=propG)) + geom_histogram(colour="grey", fill="#f0e442") + ylab("Count") + xlab("Nucleotide G")
+histC<-ggplot(data=df, aes(x=propC)) + geom_histogram(colour="grey", fill="#009E73") + ylab("Count") + xlab("Nucleotide C")
+histT<-ggplot(data=df, aes(x=propT)) + geom_histogram(colour="grey", fill="#d55e00") + ylab("Count") + xlab("Nucleotide T")
+
+#Open pdf file to save figure in 2x2 format
+install.packages("ggpubr")
+library(ggpubr)
+pdf("DataPlot.pdf", width=10, height=10)
+  ggarrange(histA, histG, histC, histT,
+    ncol=2, nrow=2)
 dev.off()
